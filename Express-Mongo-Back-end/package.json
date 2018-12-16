@@ -1,0 +1,27 @@
+{
+  "name": "back-end",
+  "version": "1.0.0",
+  "description": "Chat app back end with express socket and mongo ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChanM0/-MEVN_Real_Time_Chat_App.git"
+  },
+  "author": "ChanM0",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ChanM0/-MEVN_Real_Time_Chat_App/issues"
+  },
+  "homepage": "https://github.com/ChanM0/-MEVN_Real_Time_Chat_App#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "mongodb": "^3.1.10",
+    "mongoose": "^5.4.0",
+    "socket.io": "^2.2.0"
+  }
+}
