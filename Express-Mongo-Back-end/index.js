@@ -342,9 +342,60 @@ app.get("/api/chat/sent/received/:username", function(req, res) {
 });
 
 app.get("/api/chat/:username1/:username2", function(req, res) {
-  res.status(200).send("Success");
   console.log(req.params.username1);
   console.log(req.params.username2);
+
+  let user1 = req.params.username1;
+  let user2 = req.params.username2;
+
+  MongoClient.connect(
+    url,
+    function(err, client) {
+      assert.equal(null, err);
+      console.log("Connected successfully to server");
+
+      const dbChat = client.db(chatMessageDatabase);
+      const dbUser = client.db(userDatabase);
+
+      let query = { username: user1 };
+      find(dbUser, query, function() {
+        if (foundResult.length != 0) {
+          foundResult = null;
+          query = { username: user2 };
+          find(dbUser, query, function() {
+            if (foundResult.length != 0) {
+              foundResult = null;
+              query = {
+                $or: [
+                  {
+                    $and: [{ receiver: user1 }, { sender: user2 }]
+                  },
+                  {
+                    $and: [{ receiver: user2 }, { sender: user1 }]
+                  }
+                ]
+              };
+              find(dbChat, query, function() {
+                let conversation = foundResult;
+                console.log(conversation);
+                if (foundResult.length != 0) {
+                  conversation = conversation.sort({ timeStamp: -1 });
+                }
+                res.status(200).send(conversation);
+                client.close();
+              });
+            } else {
+              res.status(401).send("One user Does not exist.");
+              client.close();
+            }
+          });
+        } else {
+          res.status(401).send("One user Does not exist.");
+          client.close();
+        }
+      });
+    }
+  );
 });
 
 // });
