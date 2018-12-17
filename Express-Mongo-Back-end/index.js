@@ -205,16 +205,24 @@ app.post("/api/chat/new/message", function(req, res) {
           if (receiverFound.length != 0) {
             console.log(receiver);
             userFound = null;
-
-            insertMessage(dbChat, data, function() {
-              res.status(200).send("success");
-              /**
-               * Socket.io
-               */
-              client.close();
+            query = { username: sender };
+            findUser(dbUser, query, function() {
+              senderFound = userFound;
+              if (senderFound.length != 0) {
+                insertMessage(dbChat, data, function() {
+                  res.status(200).send("success");
+                  /**
+                   * Socket.io
+                   */
+                  client.close();
+                });
+              } else {
+                res.status(401).send("Invalid sender user.");
+                client.close();
+              }
             });
           } else {
-            res.status(401).send("Invalid user.");
+            res.status(401).send("Invalid receiver user.");
             client.close();
           }
         });
