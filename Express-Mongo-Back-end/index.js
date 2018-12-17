@@ -24,19 +24,22 @@ const chatMessageDatabase = "chatMessageDatabase";
 
 // app.get("/", (req, res) => res.send("Hello World!"));
 
-var userFound = null;
+var foundResult = null;
 
-const findUser = function(db, query, callback) {
+const find = function(db, query, callback) {
   const collection = db.collection("documents");
   console.log(query);
   collection.find(query).toArray(function(err, docs) {
     assert.equal(err, null);
     console.log("Found the following records: " + docs.length);
     // console.log(docs);
-    userFound = docs;
+    foundResult = docs;
     callback(docs);
   });
 };
+
+/** refactor  */
+
 const insertMessage = function(db, data, callback) {
   const collection = db.collection("documents");
   console.log(data);
@@ -69,7 +72,7 @@ app.post("/api/create/user", function(req, res) {
   username = req.body.username;
   password = req.body.password;
 
-  userFound = null;
+  foundResult = null;
   data = { username: username, password: password };
   if (data.username.length == 0 || data.password.length == 0) {
     res.status(401).send("Empty input is invalid.");
@@ -82,8 +85,8 @@ app.post("/api/create/user", function(req, res) {
 
         const db = client.db(userDatabase);
         let query = { username: data.username };
-        findUser(db, query, function() {
-          if (userFound.length == 0) {
+        find(db, query, function() {
+          if (foundResult.length == 0) {
             // insertUser
             insertUser(db, data, function() {
               res.status(200).send(username);
@@ -103,7 +106,7 @@ app.post("/api/login/user", function(req, res) {
   username = req.body.username;
   password = req.body.password;
 
-  userFound = null;
+  foundResult = null;
   data = { username: username, password: password };
 
   if (data.username.length == 0 || data.password.length == 0) {
@@ -119,14 +122,14 @@ app.post("/api/login/user", function(req, res) {
 
         let query = { username: data.username };
 
-        findUser(db, query, function() {
-          if (userFound.length != 0) {
+        find(db, query, function() {
+          if (foundResult.length != 0) {
             // create new user
             if (
-              userFound[0].username == username &&
-              userFound[0].password == password
+              foundResult[0].username == username &&
+              foundResult[0].password == password
             ) {
-              res.status(200).send(userFound[0].username);
+              res.status(200).send(foundResult[0].username);
             } else {
               res.status(401).send("Invalid Credentials.");
             }
@@ -150,9 +153,9 @@ app.get("/api/all/users", function(req, res) {
       const db = client.db(userDatabase);
 
       let query = {};
-      findUser(db, query, function() {
-        if (userFound.length != 0) {
-          res.status(200).send(userFound);
+      find(db, query, function() {
+        if (foundResult.length != 0) {
+          res.status(200).send(foundResult);
         } else {
           res.status(401).send("Invalid Credentials.");
         }
@@ -162,6 +165,21 @@ app.get("/api/all/users", function(req, res) {
   );
 });
 
+const findLast50Messages = function(db, query, callback) {
+  const collection = db.collection("documents");
+  console.log(query);
+  collection
+    .find(query)
+    .limit(50)
+    .toArray(function(err, docs) {
+      assert.equal(err, null);
+      console.log("Found the following records: " + docs.length);
+      // console.log(docs);
+      foundResult = docs;
+      callback(docs);
+    });
+};
+
 // io.on("connection", function(socket) {
 //Creates a new message
 app.post("/api/chat/new/message", function(req, res) {
@@ -169,7 +187,7 @@ app.post("/api/chat/new/message", function(req, res) {
   let sender = req.body.sender;
   let receiver = req.body.receiver;
   let message = req.body.message;
-  let timeStamp = moment(new Date());
+  let timeStamp = moment(new Date()).toString();
 
   let senderFound = null;
   let receiverFound = null;
@@ -185,7 +203,7 @@ app.post("/api/chat/new/message", function(req, res) {
 
   console.log(data);
 
-  userFound = null;
+  foundResult = null;
 
   if (sender != null && receiver != null && message.length != 0) {
     MongoClient.connect(
@@ -199,15 +217,15 @@ app.post("/api/chat/new/message", function(req, res) {
 
         let query = { username: receiver };
 
-        findUser(dbUser, query, function() {
-          receiverFound = userFound;
+        find(dbUser, query, function() {
+          receiverFound = foundResult;
 
           if (receiverFound.length != 0) {
             console.log(receiver);
-            userFound = null;
+            foundResult = null;
             query = { username: sender };
-            findUser(dbUser, query, function() {
-              senderFound = userFound;
+            find(dbUser, query, function() {
+              senderFound = foundResult;
               if (senderFound.length != 0) {
                 insertMessage(dbChat, data, function() {
                   res.status(200).send("success");
@@ -220,6 +238,7 @@ app.post("/api/chat/new/message", function(req, res) {
                 res.status(401).send("Invalid sender user.");
                 client.close();
               }
+              client.close();
             });
           } else {
             res.status(401).send("Invalid receiver user.");
@@ -233,20 +252,101 @@ app.post("/api/chat/new/message", function(req, res) {
   }
 });
 
-//get this users last 50 messages
-app.get("api/chat/50/:username", function() {
-  res.status(200).send("Success");
+// get this users last 50 messages
+app.get("/api/chat/50/:username", function(req, res) {
+  console.log(req.params.username);
+  let getThisUser = req.params.username;
+
+  foundResult = null;
+
+  MongoClient.connect(
+    url,
+    function(err, client) {
+      assert.equal(null, err);
+      console.log("Connected successfully to server");
+
+      const dbChat = client.db(chatMessageDatabase);
+      const dbUser = client.db(userDatabase);
+
+      let query = { username: getThisUser };
+      let messagesFound = null;
+
+      find(dbUser, query, function() {
+        if (foundResult.length != 0) {
+          foundResult = null;
+          query = { $or: [{ receiver: getThisUser }, { sender: getThisUser }] };
+          findLast50Messages(dbChat, query, function() {
+            messagesFound = foundResult;
+            if (messagesFound.length != 0) {
+              messagesFound = messagesFound.sort({ timeStamp: -1 });
+              res.status(200).send(messagesFound);
+            } else {
+              res.status(401).send("Invalid sender user.");
+              client.close();
+            }
+            client.close();
+          });
+        } else {
+          res.status(401).send("Invalid receiver user.");
+          client.close();
+        }
+      });
+    }
+  );
 });
 
-// Get this users sent and received messages
-app.get("api/chat/sent/received/:username", function() {
-  res.status(200).send("Success");
+app.get("/api/chat/sent/received/:username", function(req, res) {
+  console.log(req.params.username);
+  let getThisUser = req.params.username;
+
+  foundResult = null;
+  let messageSender = null;
+  let messageReceiver = null;
+
+  MongoClient.connect(
+    url,
+    function(err, client) {
+      assert.equal(null, err);
+      console.log("Connected successfully to server");
+
+      const dbChat = client.db(chatMessageDatabase);
+      const dbUser = client.db(userDatabase);
+
+      let query = { username: getThisUser };
+
+      find(dbUser, query, function() {
+        foundResult = null;
+        query = { sender: getThisUser };
+        find(dbChat, query, function() {
+          messageSender = foundResult;
+          if (messageSender.length != 0) {
+            messageSender = messageSender.sort({ timeStamp: -1 });
+          }
+          query = { receiver: getThisUser };
+          find(dbChat, query, function() {
+            messageReceiver = foundResult;
+            if (messageReceiver.length != 0) {
+              messageReceiver = messageReceiver.sort({ timeStamp: -1 });
+            }
+            let data = {
+              messageSender: messageSender,
+              messageReceiver: messageReceiver
+            };
+            res.status(200).send(data);
+            client.close();
+          });
+        });
+      });
+    }
+  );
 });
 
-// Start a new conversation
-app.get("api/chat/:usernameSender/:usernameReceiver", function() {
+app.get("/api/chat/:username1/:username2", function(req, res) {
   res.status(200).send("Success");
+  console.log(req.params.username1);
+  console.log(req.params.username2);
 });
+
 // });
 
 http.listen(3000);
