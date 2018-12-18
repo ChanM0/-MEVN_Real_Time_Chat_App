@@ -228,7 +228,7 @@ app.post("/api/chat/new/message", function(req, res) {
               senderFound = foundResult;
               if (senderFound.length != 0) {
                 insertMessage(dbChat, data, function() {
-                  res.status(200).send("success");
+                  res.status(200).send({ newMessage: data });
                   /**
                    * Socket.io
                    */

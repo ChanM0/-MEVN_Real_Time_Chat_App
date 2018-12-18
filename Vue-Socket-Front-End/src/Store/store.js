@@ -11,7 +11,8 @@ const store = new Vuex.Store({
     isLoggedIn: !!localStorage.getItem("username"),
     username: localStorage.getItem("username"),
     userList: {},
-    last50Messages: {}
+    last50Messages: {},
+    messageChain: {}
   },
   mounted() {
     if (localStorage.getItem("userList")) {
@@ -35,6 +36,8 @@ const store = new Vuex.Store({
       state.isLoggedIn = localStorage.getItem("username") ? true : false;
       state.username = null;
       state.userList = {};
+      state.last50Messages = {};
+      state.messageChain = {};
     },
     POPULATEUSERSLIST(state, res) {
       state.userList = res;
@@ -55,6 +58,21 @@ const store = new Vuex.Store({
     FETCHLAST50MESSAGES(state) {
       var data = JSON.parse(localStorage.getItem("last50Messages"));
       state.last50Messages = data;
+    },
+    POPULATEMESSAGECHAIN(state, res) {
+      state.messageChain = res;
+      console.log(res);
+      res = JSON.stringify(res);
+      localStorage.setItem("messageChain", res);
+    },
+    FETCHMESSAGECHAIN(state) {
+      var data = JSON.parse(localStorage.getItem("messageChain"));
+      state.messageChain = data;
+    },
+    SENDMESSAGE(state, res) {
+      console.log(res);
+      let newMessage = res.data.newMessage;
+      state.messageChain.unshift(newMessage);
     }
   },
   actions: {
@@ -104,6 +122,31 @@ const store = new Vuex.Store({
     },
     fetchLast50Messages({ commit }) {
       commit("FETCHLAST50MESSAGES");
+    },
+    populateMessageChain({ commit }, user) {
+      let path = "chat/50/" + user;
+      path = API + path;
+      console.log(path);
+      axios
+        .get(path)
+        .then(res => {
+          commit("POPULATEMESSAGECHAIN", res.data);
+        })
+        .catch(error => console.log(error.response.data));
+    },
+    fetchMessageChain({ commit }) {
+      commit("FETCHMESSAGECHAIN");
+    },
+    sendMessage({ commit }, formData) {
+      let path = "chat/new/message";
+      path = API + path;
+      axios
+        .post(path, formData)
+        .then(res => commit("SENDMESSAGE", res))
+        .catch(error => {
+          // console.log(formData);
+          console.log(error.response);
+        });
     }
   },
   getters: {
@@ -119,6 +162,9 @@ const store = new Vuex.Store({
     },
     getLast50Messages: state => {
       return state.last50Messages;
+    },
+    getMessageChain: state => {
+      return state.messageChain;
     }
   }
 });
