@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-form @submit.prevent="login">
-      <v-text-field v-model="form.email" label="E-mail" type="email" required></v-text-field>
+      <v-text-field v-model="form.username" label="username" type="text" required></v-text-field>
 
       <v-text-field v-model="form.password" label="Password" type="password" required></v-text-field>
 
@@ -16,7 +16,7 @@ export default {
   data() {
     return {
       form: {
-        email: null,
+        username: null,
         password: null
       }
     };

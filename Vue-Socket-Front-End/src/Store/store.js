@@ -4,6 +4,23 @@ import axios from "axios";
 
 Vue.use(Vuex);
 
+const API = "http://localhost:3000/api/";
+
+// const API_URL = process.env.API_URL || "http://localhost:3000/api/v1";
+
+// export const AXIOS = axios.create({
+//   baseURL: `http://localhost:8082/Fleet-App/api/`,
+//   withCredentials: false,
+//   headers: {
+//     "Content-Type": "application/json",
+//     Authorization: "Bearer " + localStorage.token,
+//     "Access-Control-Allow-Origin": "*",
+//     Accept: "application/json, text/plain, */*",
+//     "Access-Control-Allow-Methods": "GET, PUT, POST, DELETE, OPTIONS",
+//     "Access-Control-Allow-Credentials": true
+//   }
+// });
+
 const store = new Vuex.Store({
   state: {
     isLoggedIn: !!localStorage.getItem("username"),
@@ -46,36 +63,29 @@ const store = new Vuex.Store({
   actions: {
     login({ commit }, formData) {
       console.log(formData);
-      let path = "/api/jwt/auth/login";
+      let path = "login/user";
       axios
-        .post(path, formData)
+        .post(API + path, formData)
         .then(res => commit("VALIDATE_LOGIN", res))
         .catch(error => {
-          console.log(formData);
+          // console.log(formData);
           console.log(error.response);
         });
     },
     logout({ commit }) {
-      let path = "/api/jwt/auth/logout";
-      axios
-        .post(path)
-        .then(res => commit("LOGOUT", res))
-        .catch(error => {
-          console.log(error.response);
-        });
       commit("LOGOUT");
     },
     signup({ commit }, formData) {
-      let path = "/api/jwt/auth/signup";
+      let path = "create/user";
       axios
-        .post(path, formData)
+        .post(API + path, formData)
         .then(res => commit("VALIDATE_LOGIN", res))
         .catch(error => console.log(error.response.data));
     },
     populateUsersList({ commit }) {
-      let path = "/api/jwt/auth/users";
+      let path = "all/users";
       axios
-        .get(path)
+        .get(API + path)
         .then(res => {
           commit("POPULATEUSERSLIST", res.data);
         })

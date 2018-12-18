@@ -2,14 +2,7 @@
   <v-container>
     <v-form @submit.prevent="signup">
       <v-text-field v-model="form.username" label="username" type="text" required></v-text-field>
-      <v-text-field v-model="form.email" label="E-mail" type="email" required></v-text-field>
       <v-text-field v-model="form.password" label="Password" type="password" required></v-text-field>
-      <v-text-field
-        v-model="form.password_confirmation"
-        label="Password Confirmation"
-        type="password"
-        required
-      ></v-text-field>
       <v-btn color="green" type="submit">Signup</v-btn>
     </v-form>
   </v-container>
@@ -21,9 +14,7 @@ export default {
     return {
       form: {
         username: null,
-        email: null,
-        password: null,
-        password_confirmation: null
+        password: null
       }
     };
   },

@@ -1,12 +1,13 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
+
+Vue.use(VueRouter);
+
 import HelloWorld from "@/components/HelloWorld";
 import welcome from "@/components/HelloWorld";
 import login from "@/components/Forms/Login";
 import logout from "@/components/Forms/Logout";
 import signup from "@/components/Forms/Signup";
-
-Vue.use(VueRouter);
 
 const routes = [
   {
