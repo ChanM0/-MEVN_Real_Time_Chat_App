@@ -3,35 +3,75 @@
     <v-toolbar-title>SPA Chat App</v-toolbar-title>
     <v-spacer></v-spacer>
     <div class="hidden-sm-and-down">
-      <router-link v-for="routeView in routeList" :key="routeView.title" :to="routeView.to">
+      <router-link
+        v-for="routeView in routeList"
+        :key="routeView.title"
+        :to="routeView.to"
+        v-if="routeView.show"
+      >
         <v-btn flat>{{routeView.title}}</v-btn>
       </router-link>
     </div>
   </v-toolbar>
 </template>
  <script>
+import { mapGetters } from "vuex";
 export default {
   data() {
     return {
       routeList: [
         {
           title: "All Users",
-          to: "/admin/all/users"
+          to: "/admin/all/users",
+          show: this.$store.getters.getLoggedInStatus
         },
         {
           title: "Create Account",
-          to: "/signup"
+          to: "/signup",
+          show: !this.$store.getters.getLoggedInStatus
         },
         {
           title: "Login",
-          to: "/login"
+          to: "/login",
+          show: !this.$store.getters.getLoggedInStatus
         },
         {
           title: "Logout",
-          to: "/logout"
+          to: "/logout",
+          show: this.$store.getters.getLoggedInStatus
         }
       ]
     };
+  },
+  computed: {
+    ...mapGetters(["getLoggedInStatus"])
+  },
+  watch: {
+    getLoggedInStatus() {
+      var show = this.$store.getters.getLoggedInStatus;
+      this.routeList = [
+        {
+          title: "All Users",
+          to: "/admin/all/users",
+          show: show
+        },
+        {
+          title: "Create Account",
+          to: "/signup",
+          show: !show
+        },
+        {
+          title: "Login",
+          to: "/login",
+          show: !show
+        },
+        {
+          title: "Logout",
+          to: "/logout",
+          show: show
+        }
+      ];
+    }
   }
 };
 </script>

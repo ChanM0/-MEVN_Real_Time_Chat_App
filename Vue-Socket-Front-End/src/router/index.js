@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import HelloWorld from "@/components/HelloWorld";
+import welcome from "@/components/HelloWorld";
 import login from "@/components/Forms/Login";
 import logout from "@/components/Forms/Logout";
 import signup from "@/components/Forms/Signup";
@@ -10,8 +11,13 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
-    name: "HelloWorld",
+    name: "landingPage",
     component: HelloWorld
+  },
+  {
+    path: "/welcome",
+    name: "welcome",
+    component: welcome
   },
   {
     path: "/login",
