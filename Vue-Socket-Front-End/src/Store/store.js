@@ -6,26 +6,12 @@ Vue.use(Vuex);
 
 const API = "http://localhost:3000/api/";
 
-// const API_URL = process.env.API_URL || "http://localhost:3000/api/v1";
-
-// export const AXIOS = axios.create({
-//   baseURL: `http://localhost:8082/Fleet-App/api/`,
-//   withCredentials: false,
-//   headers: {
-//     "Content-Type": "application/json",
-//     Authorization: "Bearer " + localStorage.token,
-//     "Access-Control-Allow-Origin": "*",
-//     Accept: "application/json, text/plain, */*",
-//     "Access-Control-Allow-Methods": "GET, PUT, POST, DELETE, OPTIONS",
-//     "Access-Control-Allow-Credentials": true
-//   }
-// });
-
 const store = new Vuex.Store({
   state: {
     isLoggedIn: !!localStorage.getItem("username"),
     username: localStorage.getItem("username"),
-    userList: {}
+    userList: {},
+    last50Messages: {}
   },
   mounted() {
     if (localStorage.getItem("userList")) {
@@ -38,6 +24,7 @@ const store = new Vuex.Store({
   },
   mutations: {
     VALIDATE_LOGIN(state, res) {
+      console.log(res.data);
       const username = res.data.username;
       localStorage.setItem("username", username);
       state.isLoggedIn = localStorage.getItem("username") ? true : false;
@@ -58,6 +45,16 @@ const store = new Vuex.Store({
     FETCHUSERLIST(state) {
       var data = JSON.parse(localStorage.getItem("userList"));
       state.userList = data;
+    },
+    POPULATELAST50MESSAGES(state, res) {
+      state.last50Messages = res;
+      console.log(res);
+      res = JSON.stringify(res);
+      localStorage.setItem("last50Messages", res);
+    },
+    FETCHLAST50MESSAGES(state) {
+      var data = JSON.parse(localStorage.getItem("last50Messages"));
+      state.last50Messages = data;
     }
   },
   actions: {
@@ -93,6 +90,20 @@ const store = new Vuex.Store({
     },
     fetchUserList({ commit }) {
       commit("FETCHUSERLIST");
+    },
+    populateLast50Messages({ commit }, user) {
+      let path = "chat/50/" + user;
+      path = API + path;
+      console.log(path);
+      axios
+        .get(path)
+        .then(res => {
+          commit("POPULATELAST50MESSAGES", res.data);
+        })
+        .catch(error => console.log(error.response.data));
+    },
+    fetchLast50Messages({ commit }) {
+      commit("FETCHLAST50MESSAGES");
     }
   },
   getters: {
@@ -105,6 +116,9 @@ const store = new Vuex.Store({
     getUserList: state => {
       console.log(state.userList);
       return state.userList;
+    },
+    getLast50Messages: state => {
+      return state.last50Messages;
     }
   }
 });

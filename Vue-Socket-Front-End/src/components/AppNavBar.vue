@@ -22,7 +22,7 @@ export default {
       routeList: [
         {
           title: "All Users",
-          to: "/admin/all/users",
+          to: "/all/users",
           show: this.$store.getters.getLoggedInStatus
         },
         {
@@ -52,7 +52,7 @@ export default {
       this.routeList = [
         {
           title: "All Users",
-          to: "/admin/all/users",
+          to: "/all/users",
           show: show
         },
         {

@@ -89,7 +89,7 @@ app.post("/api/create/user", function(req, res) {
           if (foundResult.length == 0) {
             // insertUser
             insertUser(db, data, function() {
-              res.status(200).send(username);
+              res.status(200).send({ username: username });
             });
           } else {
             res.status(401).send("User already exists.");
@@ -129,7 +129,7 @@ app.post("/api/login/user", function(req, res) {
               foundResult[0].username == username &&
               foundResult[0].password == password
             ) {
-              res.status(200).send(foundResult[0].username);
+              res.status(200).send({ username: username });
             } else {
               res.status(401).send("Invalid Credentials.");
             }
@@ -279,15 +279,14 @@ app.get("/api/chat/50/:username", function(req, res) {
             messagesFound = foundResult;
             if (messagesFound.length != 0) {
               messagesFound = messagesFound.sort({ timeStamp: -1 });
-              res.status(200).send(messagesFound);
-            } else {
-              res.status(401).send("Invalid sender user.");
-              client.close();
             }
+
+            res.status(200).send(messagesFound);
+
             client.close();
           });
         } else {
-          res.status(401).send("Invalid receiver user.");
+          res.status(401).send("Invalid user.");
           client.close();
         }
       });
