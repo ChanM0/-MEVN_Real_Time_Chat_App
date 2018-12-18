@@ -20,7 +20,7 @@ export default {
         },
         {
           title: "Create Account",
-          to: "/create"
+          to: "/signup"
         },
         {
           title: "Login",
