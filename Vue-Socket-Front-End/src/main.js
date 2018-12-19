@@ -9,7 +9,6 @@ import "vuetify/dist/vuetify.min.css";
 import VueSocketio from "vue-socket.io";
 
 Vue.use(Vuetify);
-// Vue.use(VueChatScroll);
 Vue.use(VueSocketio, "http://localhost:3000");
 
 Vue.config.productionTip = false;

@@ -10,6 +10,12 @@ export default {
     }
     this.$store.dispatch("logout");
     this.$router.push({ name: "landingPage" });
+  },
+  sockets: {
+    disconnect() {
+      console.log("Disconnect from Server");
+      this.$store.dispatch("disconnectSocket");
+    }
   }
 };
 </script>

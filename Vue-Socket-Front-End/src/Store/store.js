@@ -14,7 +14,9 @@ const store = new Vuex.Store({
     last50Messages: {},
     messageChain: {},
     senderMessages: [],
-    receiverMessages: []
+    receiverMessages: [],
+    isConnected: false,
+    socketMessage: ""
   },
   mounted() {
     if (localStorage.getItem("userList")) {
@@ -71,7 +73,9 @@ const store = new Vuex.Store({
     },
     SENDMESSAGE(state, res) {
       let newMessage = res.data.newMessage[0];
-      state.messageChain.push(newMessage);
+      console.log(newMessage);
+      console.log("Message Sent!");
+      // state.messageChain.push(newMessage);
     },
     POPULATEALLMESSAGESSENTRECEIVED(state, res) {
       console.log("POPULATEALLMESSAGESSENTRECEIVED Begin*******");
@@ -103,6 +107,19 @@ const store = new Vuex.Store({
       let receiver = JSON.parse(localStorage.getItem("receiverMessages"));
       state.senderMessages = sender.data;
       state.receiverMessages = receiver.data;
+    },
+    CONNECTTOSOCKET(state) {
+      state.isConnected = true;
+    },
+
+    DISCONNECTSOCKET(state) {
+      state.isConnected = false;
+    },
+    INCOMINGMESSAGE(state, message) {
+      state.socketMessage = message[0];
+      state.messageChain.push(state.socketMessage);
+      console.log(message);
+      console.log("message succeess****");
     }
   },
   actions: {
@@ -189,6 +206,15 @@ const store = new Vuex.Store({
     },
     fetchAllMessagesSentReceived({ commit }) {
       commit("FETCHALLMESSAGESSENTRECEIVED");
+    },
+    connectToSocket({ commit }) {
+      commit("CONNECTTOSOCKET");
+    },
+    disconnectSocket({ commit }) {
+      commit("DISCONNECTSOCKET");
+    },
+    incomingMessage({ commit }, message) {
+      commit("INCOMINGMESSAGE", message);
     }
   },
   getters: {

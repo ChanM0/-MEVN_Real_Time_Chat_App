@@ -50,9 +50,13 @@ export default {
   mounted() {
     console.log("hello kmounted");
     this.$store.dispatch("fetchLast50Messages");
+  },
+  sockets: {
+    connect() {
+      console.log("Connect to Server");
+      this.$store.dispatch("connectToSocket");
+    }
   }
-  // add watch
-  // add methods
 };
 </script>
 <style scoped>

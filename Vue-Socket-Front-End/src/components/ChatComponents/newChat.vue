@@ -67,6 +67,19 @@ export default {
   mounted() {
     console.log("hello kmounted");
     this.$store.dispatch("fetchMessageChain");
+  },
+  sockets: {
+    messageChannel(data) {
+      let incomingMessage = data[0];
+      if (
+        (incomingMessage.sender == this.form.sender &&
+          incomingMessage.receiver == this.form.receiver) ||
+        (incomingMessage.receiver == this.form.sender &&
+          incomingMessage.sender == this.form.receiver)
+      ) {
+        this.$store.dispatch("incomingMessage", data);
+      }
+    }
   }
 };
 </script>
