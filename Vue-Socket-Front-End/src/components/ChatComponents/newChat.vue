@@ -70,13 +70,47 @@ export default {
   },
   sockets: {
     messageChannel(data) {
-      let incomingMessage = data[0];
-      if (
-        (incomingMessage.sender == this.form.sender &&
-          incomingMessage.receiver == this.form.receiver) ||
-        (incomingMessage.receiver == this.form.sender &&
-          incomingMessage.sender == this.form.receiver)
-      ) {
+      console.log(data);
+      console.log(data[0]);
+      console.log("test");
+      let senderIncoming = data[0].sender;
+      let receiverIncoming = data[0].receiver;
+      console.log(data[0].sender);
+      console.log(senderIncoming);
+      console.log(typeof senderIncoming);
+      console.log(receiverIncoming);
+      console.log(typeof receiverIncoming);
+
+      console.log(this.form.sender);
+      console.log(typeof this.form.sender);
+      console.log(this.form.receiver);
+      console.log(typeof this.form.receiver);
+
+      let checkSender = "" + this.$route.params.username1;
+      let checkReceiver = "" + this.$route.params.username2;
+
+      console.log(checkSender);
+      console.log(typeof checkSender);
+      console.log(checkReceiver);
+      console.log(typeof checkReceiver);
+      // let data[0] = data[0];
+
+      let bool1 = senderIncoming == checkSender;
+      let bool2 = receiverIncoming == checkReceiver;
+      let bool3 = receiverIncoming == checkSender;
+      let bool4 = senderIncoming == checkReceiver;
+
+      console.log("incomingMessage");
+      console.log(bool1);
+      console.log(bool2);
+      console.log(bool3);
+      console.log(bool4);
+      // console.log(incomingMessage);
+      console.log(this.form);
+      console.log("incomingMessage");
+      let masterBool = (bool1 && bool2) || (bool3 && bool4);
+      console.log(masterBool);
+      if (masterBool) {
         this.$store.dispatch("incomingMessage", data);
       }
     }

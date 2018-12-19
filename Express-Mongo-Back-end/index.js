@@ -229,7 +229,12 @@ io.on("connection", function(socket) {
                 if (senderFound.length != 0) {
                   insertMessage(dbChat, data, function() {
                     res.status(200).send({ newMessage: data });
-                    io.emit("messageChannel", data);
+                    io.emit("messageChannel", {
+                      sender: sender,
+                      receiver: receiver,
+                      message: message,
+                      timeStamp: timeStamp
+                    });
                     client.close();
                   });
                 } else {

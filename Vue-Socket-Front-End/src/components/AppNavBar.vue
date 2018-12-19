@@ -21,6 +21,11 @@ export default {
     return {
       routeList: [
         {
+          title: "Welcome",
+          to: "/welcome",
+          show: this.$store.getters.getLoggedInStatus
+        },
+        {
           title: "All Users",
           to: "/all/users",
           show: this.$store.getters.getLoggedInStatus
@@ -58,6 +63,11 @@ export default {
       let show = this.$store.getters.getLoggedInStatus;
       let user = this.$store.getters.getUsername;
       this.routeList = [
+        {
+          title: "Welcome",
+          to: "/welcome",
+          show: show
+        },
         {
           title: "All Users",
           to: "/all/users",
