@@ -10,6 +10,7 @@ import logout from "@/components/Forms/Logout";
 import signup from "@/components/Forms/Signup";
 import AllUsers from "@/components/ChatComponents/AllUsersList";
 import newChat from "@/components/ChatComponents/newChat";
+import allUsersMessagesSenderReceiver from "@/components/ChatComponents/allUsersMessagesSenderReceiver";
 
 const routes = [
   {
@@ -21,6 +22,11 @@ const routes = [
     path: "/welcome",
     name: "welcome",
     component: welcome
+  },
+  {
+    path: "/all/sender/receiver/messages/:username",
+    name: "allUsersMessagesSenderReceiver",
+    component: allUsersMessagesSenderReceiver
   },
   {
     path: "/newChat/:username1/:username2",

@@ -327,10 +327,7 @@ app.get("/api/chat/sent/received/:username", function(req, res) {
             if (messageReceiver.length != 0) {
               messageReceiver = messageReceiver.sort({ timeStamp: -1 });
             }
-            let data = {
-              messageSender: messageSender,
-              messageReceiver: messageReceiver
-            };
+            let data = [messageSender, messageReceiver];
             res.status(200).send(data);
             client.close();
           });

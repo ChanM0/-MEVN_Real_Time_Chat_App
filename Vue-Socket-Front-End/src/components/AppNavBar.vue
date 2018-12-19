@@ -26,6 +26,13 @@ export default {
           show: this.$store.getters.getLoggedInStatus
         },
         {
+          title:
+            "All sender receiver messages" + this.$store.getters.getUsername,
+          to:
+            "/all/sender/receiver/messages/" + this.$store.getters.getUsername,
+          show: this.$store.getters.getLoggedInStatus
+        },
+        {
           title: "Create Account",
           to: "/signup",
           show: !this.$store.getters.getLoggedInStatus
@@ -48,11 +55,17 @@ export default {
   },
   watch: {
     getLoggedInStatus() {
-      var show = this.$store.getters.getLoggedInStatus;
+      let show = this.$store.getters.getLoggedInStatus;
+      let user = this.$store.getters.getUsername;
       this.routeList = [
         {
           title: "All Users",
           to: "/all/users",
+          show: show
+        },
+        {
+          title: "All sender receiver messages" + user,
+          to: "/all/sender/receiver/messages/" + user,
           show: show
         },
         {

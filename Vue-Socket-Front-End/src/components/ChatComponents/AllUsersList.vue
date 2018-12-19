@@ -6,7 +6,7 @@
           <h4>
             <router-link
               :to="{name:'newChat', params:{username1:user.username,username2:currentUser}}"
-            >Get all logs from: {{user.username}}</router-link>
+            >Chat with user: {{user.username}}</router-link>
           </h4>
         </li>
         <br>

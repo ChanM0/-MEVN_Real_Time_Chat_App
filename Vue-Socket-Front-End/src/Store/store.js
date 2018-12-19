@@ -12,7 +12,9 @@ const store = new Vuex.Store({
     username: localStorage.getItem("username"),
     userList: {},
     last50Messages: {},
-    messageChain: {}
+    messageChain: {},
+    senderMessages: [],
+    receiverMessages: []
   },
   mounted() {
     if (localStorage.getItem("userList")) {
@@ -25,7 +27,6 @@ const store = new Vuex.Store({
   },
   mutations: {
     VALIDATE_LOGIN(state, res) {
-      console.log(res.data);
       const username = res.data.username;
       localStorage.setItem("username", username);
       state.isLoggedIn = localStorage.getItem("username") ? true : false;
@@ -38,10 +39,11 @@ const store = new Vuex.Store({
       state.userList = {};
       state.last50Messages = {};
       state.messageChain = {};
+      state.senderMessages = [];
+      state.receiverMessages = [];
     },
     POPULATEUSERSLIST(state, res) {
       state.userList = res;
-      console.log(res);
       res = JSON.stringify(res);
       localStorage.setItem("userList", res);
     },
@@ -51,7 +53,6 @@ const store = new Vuex.Store({
     },
     POPULATELAST50MESSAGES(state, res) {
       state.last50Messages = res;
-      console.log(res);
       res = JSON.stringify(res);
       localStorage.setItem("last50Messages", res);
     },
@@ -61,7 +62,6 @@ const store = new Vuex.Store({
     },
     POPULATEMESSAGECHAIN(state, res) {
       state.messageChain = res;
-      console.log(res);
       res = JSON.stringify(res);
       localStorage.setItem("messageChain", res);
     },
@@ -70,9 +70,39 @@ const store = new Vuex.Store({
       state.messageChain = data;
     },
     SENDMESSAGE(state, res) {
+      let newMessage = res.data.newMessage[0];
+      state.messageChain.push(newMessage);
+    },
+    POPULATEALLMESSAGESSENTRECEIVED(state, res) {
+      console.log("POPULATEALLMESSAGESSENTRECEIVED Begin*******");
       console.log(res);
-      let newMessage = res.data.newMessage;
-      state.messageChain.unshift(newMessage);
+      state.senderMessages = res[0];
+      if (res[0] == []) {
+        console.log("empty array");
+        state.senderMessages = [];
+      }
+
+      state.receiverMessages = res[1];
+      if (res[1] == []) {
+        console.log("empty array");
+        state.receiverMessages = [];
+      }
+
+      console.log(state.senderMessages);
+      console.log(state.receiverMessages);
+      console.log("POPULATEALLMESSAGESSENTRECEIVED End*******");
+
+      let sender = JSON.stringify(state.senderMessages);
+      let receiver = JSON.stringify(state.receiverMessages);
+
+      localStorage.setItem("senderMessages", sender);
+      localStorage.setItem("receiverMessages", receiver);
+    },
+    FETCHALLMESSAGESSENTRECEIVED(state) {
+      let sender = JSON.parse(localStorage.getItem("senderMessages"));
+      let receiver = JSON.parse(localStorage.getItem("receiverMessages"));
+      state.senderMessages = sender.data;
+      state.receiverMessages = receiver.data;
     }
   },
   actions: {
@@ -83,7 +113,6 @@ const store = new Vuex.Store({
         .post(API + path, formData)
         .then(res => commit("VALIDATE_LOGIN", res))
         .catch(error => {
-          // console.log(formData);
           console.log(error.response);
         });
     },
@@ -144,9 +173,22 @@ const store = new Vuex.Store({
         .post(path, formData)
         .then(res => commit("SENDMESSAGE", res))
         .catch(error => {
-          // console.log(formData);
           console.log(error.response);
         });
+    },
+    populateAllMessagesSentReceived({ commit }, user) {
+      let path = "chat/sent/received/" + user;
+      path = API + path;
+      console.log(path);
+      axios
+        .get(path)
+        .then(res => {
+          commit("POPULATEALLMESSAGESSENTRECEIVED", res.data);
+        })
+        .catch(error => console.log(error.response.data));
+    },
+    fetchAllMessagesSentReceived({ commit }) {
+      commit("FETCHALLMESSAGESSENTRECEIVED");
     }
   },
   getters: {
@@ -165,6 +207,18 @@ const store = new Vuex.Store({
     },
     getMessageChain: state => {
       return state.messageChain;
+    },
+    getSenderMessages: state => {
+      console.log("Begin  senderMessages*******");
+      console.log(state.senderMessages);
+      console.log("end    senderMessages*******");
+      return state.senderMessages;
+    },
+    getReceiverMessages: state => {
+      console.log("Begin  getReceiverMessages *******");
+      console.log(state.receiverMessages);
+      console.log("end    getReceiverMessages*******");
+      return state.receiverMessages;
     }
   }
 });
